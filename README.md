@@ -1,6 +1,6 @@
 # ggdump
 
-GGDump is a tool for listing and extracting files from data archive files of the game Thimbleweed Park.
+GGDump is a tool for listing and extracting files from data archive files of the game [Thimbleweed Park](https://thimbleweedpark.com/), which you should totally buy right now. ([Steam](http://store.steampowered.com/app/569860/Thimbleweed_Park/), [GOG](https://www.gog.com/game/thimbleweed_park))
 
 ## Install
 
