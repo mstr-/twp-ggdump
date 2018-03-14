@@ -148,4 +148,8 @@ def decode_unbreakable_xor(src):
         ecx = ecx ^ buffer[ebx]
         ebx = ebx + 1
         var4 = ecx
+    for i in range(5, buf_len - 5, 16):
+        buffer[i] = buffer[i] ^ 0x0D
+    for i in range(6, buf_len - 6, 16):
+        buffer[i] = buffer[i] ^ 0x0D
     return bytes(buffer)
