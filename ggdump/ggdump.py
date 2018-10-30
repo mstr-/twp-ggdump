@@ -130,26 +130,13 @@ class GGDump:
             print('Writing: ' + rec[0])
 
 def decode_unbreakable_xor(src):
-    magic_bytes = b'\x4F\xD0\xA0\xAC\x4A\x5B\xB9\xE5\x93\x79\x45\xA5\xC1\xCB\x31\x93'
+    magic_bytes = b'\x4F\xD0\xA0\xAC\x4A\x56\xB9\xE5\x93\x79\x45\xA5\xC1\xCB\x31\x93'
     buffer = bytearray(src)
     buf_len = len(src)
 
-    eax = buf_len
-    var4 = buf_len & 0xFF
-    ebx = 0
-    while ebx < buf_len:
-        eax = ebx & 0xFF
-        eax = eax * 0x6D
-        ecx = ebx & 0x0F
-        eax = (eax ^ magic_bytes[ecx]) & 0xFF
-        ecx = var4
-        eax = (eax ^ ecx) & 0xFF
-        buffer[ebx] = buffer[ebx] ^ eax
-        ecx = ecx ^ buffer[ebx]
-        ebx = ebx + 1
-        var4 = ecx
-    for i in range(5, buf_len - 5, 16):
-        buffer[i] = buffer[i] ^ 0x0D
-    for i in range(6, buf_len - 6, 16):
-        buffer[i] = buffer[i] ^ 0x0D
+    xor_sum = buf_len & 0xFF
+    for i in range(buf_len):
+        buffer[i] = ((-i*0x53) & 0xFF) ^ buffer[i] ^ xor_sum ^ magic_bytes[i & 0x0F]
+        xor_sum ^= buffer[i]
+
     return bytes(buffer)
