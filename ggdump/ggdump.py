@@ -21,6 +21,7 @@
 import struct
 import fnmatch
 import pdb
+from .bnut_decoder import decode_bnut
 
 class GGDirectory:
 
@@ -104,15 +105,17 @@ class GGDump:
         self.gg_file_name = ''
         self.gg_dir = None
 
-    def unpack_file_to_buf(self, offset, size):
+    def unpack_file_to_buf(self, offset, size, decoder=None):
         f = open(self.gg_file_name, "rb")
         f.seek(offset)
         buf = f.read(size)
         decoded_buf = decode_unbreakable_xor(buf)
+        if decoder:
+            decoded_buf = decoder(decoded_buf)
         return decoded_buf
 
-    def unpack_file_to_disk(self, output_file_name, offset, size):
-        decoded_buf = self.unpack_file_to_buf(offset, size)
+    def unpack_file_to_disk(self, output_file_name, offset, size, decoder=None):
+        decoded_buf = self.unpack_file_to_buf(offset, size, decoder)
         fw = open(output_file_name, "wb")
         fw.write(decoded_buf)
         fw.close()
@@ -122,12 +125,16 @@ class GGDump:
             print(rec[0])
 
     def dump_files(self, pattern):
-        for rec in self.gg_dir.filter_index(pattern):
-            if rec[1] is None or rec[2] is None:
-                print('SKIPPED: (missing offset or size) ' + rec[0])
+        for filename, offset, size in self.gg_dir.filter_index(pattern):
+            if offset is None or size is None:
+                print('SKIPPED: (missing offset or size) ' + filename)
                 continue
-            self.unpack_file_to_disk(rec[0], rec[1], rec[2])
-            print('Writing: ' + rec[0])
+            if filename.endswith('.bnut'):
+                decoder = decode_bnut
+            else:
+                decoder = None
+            self.unpack_file_to_disk(filename, offset, size, decoder)
+            print('Writing: ' + filename)
 
 def decode_unbreakable_xor(src):
     magic_bytes = b'\x4F\xD0\xA0\xAC\x4A\x56\xB9\xE5\x93\x79\x45\xA5\xC1\xCB\x31\x93'
